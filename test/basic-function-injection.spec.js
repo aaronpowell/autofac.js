@@ -34,4 +34,21 @@ describe('basic function injection', function () {
 
         expect(container.resolve, 'foo').throws();
     });
+
+    describe('argument injection', function () {
+        it('should resolve an argument', function () {
+            var toResolve = {};
+            this.builder.register(function (foo) {
+                expect(foo).to.equal(toResolve);
+            }).named('fn');
+
+            this.builder.register(toResolve).named('foo');
+
+            var container = this.builder.build();
+
+            var fn = container.resolve('fn');
+
+            fn();
+        });
+    });
 });
