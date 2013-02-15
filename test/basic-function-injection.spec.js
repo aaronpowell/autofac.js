@@ -8,7 +8,7 @@ describe('basic function injection', function () {
 
     it('should allow functions to be just executed', function () {
         this.builder.register(function () {
-            expect(true).to.equal(true);
+            expect(true).to.be.true;
         }).named('fn');
 
         var container = this.builder.build();
@@ -49,6 +49,40 @@ describe('basic function injection', function () {
             var fn = container.resolve('fn');
 
             fn();
+        });
+
+        it('should resolve multiple arguments', function () {
+            var a = 1, b = 2;
+            this.builder.register(function (x, y) {
+                expect(x).to.equal(a);
+                expect(y).to.equal(b);
+            }).named('fn');
+
+            this.builder.register(a).named('x');
+            this.builder.register(b).named('y');
+
+            var container = this.builder.build();
+
+            var fn = container.resolve('fn');
+
+            fn();
+        });
+
+        it('should resolve nested dependencies', function () {
+            var fn = function () {
+                expect(true).to.be.true;
+            };
+
+            var fn2 = function (fn) {
+                fn();
+            };
+
+            this.builder.register(fn).named('fn');
+            this.builder.register(fn2).named('fn2');
+
+            var container = this.builder.build();
+
+            container.resolve('fn2')();
         });
     });
 });
